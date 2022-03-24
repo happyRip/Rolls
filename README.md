@@ -7,6 +7,7 @@
 - setup system
     - install `Raspberry PI OS Lite` on **both machines**
     - change passwords for default `pi` user on **both machines**
+    - change `/etc/hostname` file content to `Alpha` and `Beta` according to machine purpose
 
 - move `rolls.sh` and `tote.sh` to `/bin` or `$HOME/.local/bin` and remove extention from the scripts on **both machines**
     - add `$HOME/.local/bin` to `PATH` if needed
