@@ -9,6 +9,11 @@ Systemy Wbudowane (trans. Embedded Systems) project.
     - change passwords for default `pi` user on **both machines**
     - change `/etc/hostname` file content to `Alpha` and `Beta` according to machine purpose
 
+- clone this repository
+```bash
+git clone "https://github.com/happyRip/Rolls.git" "$HOME/Hazard" 
+```
+
 - move `rolls.sh` and `tote.sh` to `/bin` or `$HOME/.local/bin` and remove extention from the scripts on **both machines**
     - add `$HOME/.local/bin` to `PATH` if needed
     - remember to be logged in as `pi` user
