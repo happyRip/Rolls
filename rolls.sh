@@ -11,8 +11,12 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=n:m:M:d:
-LONGOPTS=numbers:,minimum-value:,maximum-value:,delimeter:
+function show_help() {
+    echo "Help not yet ready"
+}
+
+OPTIONS=n:m:M:d:h
+LONGOPTS=numbers:,minimum-value:,maximum-value:,delimeter:,help
 
 ! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
@@ -40,6 +44,10 @@ while true; do
             d="$2"
             shift 2
             ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         --)
             shift
             break
@@ -61,11 +69,10 @@ function getRandom() {
 }
 
 function getOutput() {
-    local output delimeter_length
-    output=$(printf "$d%d" "${numbers[@]}")
-    delimeter_length=${#d}
-    for (( i=0; i < delimeter_length; i++ )); do output=${output:1}; done
-    echo "${output}" | awk '{$1=$1};1'
+    local _OUTPUT
+    _OUTPUT=$(printf "$d%d" "${numbers[@]}")
+    _OUTPUT=${_OUTPUT#?}
+    echo "${_OUTPUT}"
 }
 
 for (( i = 0; i < n; i++ )); do
