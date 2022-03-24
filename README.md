@@ -1,8 +1,8 @@
 # Rolls
 
-## Systemy Wbudowane (trans. Embedded Systems) project.
+Systemy Wbudowane (trans. Embedded Systems) project.
 
-### Instructions:
+## Instructions:
 
 - setup system
     - install `Raspberry PI OS Lite` on **both machines**
