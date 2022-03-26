@@ -4,6 +4,7 @@ import argparse
 from collections import defaultdict
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class Board():
@@ -31,7 +32,7 @@ class Board():
         for key in values:
             if key in self._key_values:
                 matched += 1
-        self._match_map[matched] += 1
+        self._match_map[str(matched)] += 1
 
     def get_key_values(self) -> list[int]:
         return self._key_values
@@ -39,13 +40,21 @@ class Board():
     def get_stat_map(self) -> dict[int, int]:
         return self._stat_map
 
-    def get_match_map(self) -> dict[int, int]:
+    def get_match_map(self) -> dict[str, int]:
         return self._match_map
 
 
 class Stats():
-    def __init__(self, match_map: dict[int, int]) -> None:
-        self._match_data_frame = pd.DataFrame.from_dict(match_map, dtype=int)
+    def __init__(self, match_map: dict[str, int]) -> None:
+        fig, ax = plt.subplots()
+        items = list(sorted(match_map.items()))
+        ax.hist(items)
+        fig.savefig('histogram.png')
+
+    # def histogram(self, path: str) -> None:
+    #     sns.histplot(self._match_data_frame)
+    #     print(self._match_data_frame)
+    #     plt.savefig(path)
 
 
 def main():
@@ -82,6 +91,9 @@ def main():
 
     print('match map:')
     __import__('pprint').pprint(board.get_match_map())
+
+    stats = Stats(board.get_match_map())
+    # stats.histogram('histogram.png')
 
 
 if __name__ == "__main__":
