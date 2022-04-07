@@ -46,16 +46,34 @@ class Board():
 
 class Stats():
     def __init__(self, match_map: dict[str, int]) -> None:
-        fig, ax = plt.subplots()
-        items = list(sorted(match_map.items()))
-        ax.hist(items)
-        fig.savefig('histogram.png')
+        self._total_items_count = sum(match_map.values())
+        self._stat_board = self._create_stat_board(match_map)
 
-    # def histogram(self, path: str) -> None:
-    #     sns.histplot(self._match_data_frame)
-    #     print(self._match_data_frame)
-    #     plt.savefig(path)
+        self._chance = ('~1:2.3', '~1:2.4', '~1:7.5', '~1:57', '~1:1032', '~1:54 201', ' 1:13 983 816')
 
+    def _create_stat_board(self, match_map: dict) -> dict:
+
+        def calc_percentage(value: int) -> float:
+            total = self._total_items_count
+            return 100 * value / total
+
+        map = {}
+        for k, v in match_map.items():
+            map[k] = {"value": v, "percentage": calc_percentage(v)}
+
+        return map
+
+    def __str__(self) -> str:
+        out = ''
+
+        stats = sorted(self._stat_board.items())
+        chance = self._chance
+        for k, v in stats:
+            chance = self._chance[int(k)]
+            percentage = f"{v['percentage']:2.1f}"
+            out += f"{k}: {percentage.rjust(4)}%"
+            out += f" - {chance}\n"
+        return out.strip()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -64,16 +82,12 @@ def main():
     parser.add_argument('-f', '--input-files', nargs='+')
 
     args = vars(parser.parse_args())
-    print(args)
 
     board = Board()
 
     key_file = args['key_file'][0]
     if key_file != None:
         board.parse_key_file(key_file)
-
-        print('key values:')
-        __import__('pprint').pprint(board.get_key_values())
 
     input_files = args['input_files']
     for file in input_files:
@@ -86,14 +100,9 @@ def main():
             board.update_stat_map(values)
             board.update_match_map(values)
 
-    print('stat map:')
-    __import__('pprint').pprint(board.get_stat_map())
-
-    print('match map:')
-    __import__('pprint').pprint(board.get_match_map())
-
     stats = Stats(board.get_match_map())
-    # stats.histogram('histogram.png')
+
+    print(stats)
 
 
 if __name__ == "__main__":
