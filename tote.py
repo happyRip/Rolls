@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-import argparse
+import argparse, re
 from collections import defaultdict
 from typing import List, DefaultDict
+
+
+TOP_N = 10
 
 
 class Board():
@@ -65,23 +68,45 @@ class Stats():
 
         return map
 
-    def __str__(self) -> str:
-        out = 'REZULTAT\t\t\tOCZEKIWANO (lotto)\n'
-        chance = self._chance
-        prize = '10 000'
+    def _human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+    def __str__(self) -> str:
         stats = sorted(self._stat_board.items())
+        out = ''
+
+        out += f'Zwycięskie cyfry: {self._key_values}\n'
+
+        sum = 0
+        for _, v in stats:
+            sum += v['value']
+        out += f'Całkowita liczba losów: {self._human_format(sum)}\n\n'
+
+        out += 'REZULTAT\t\t\tOCZEKIWANO (lotto)\n'
+        chance = self._chance
+
         max_perc_len = 3 + stats[-1][1]['precision']
+        adjust_amount = len(re.sub('[^0-9.]', '', self._human_format(stats[0][1]['value'])))
         for k, v in stats:
             chance = self._chance[int(k)]
+            amount = v['value']
             percentage = v['percentage']
             precision = v['precision']
             percentage = f'{round(percentage, precision)}'
-            out += f'{k} cyfr: {percentage.rjust(max_perc_len)}% - {prize}zł\t{chance}\n'
+            out += f'{k} cyfr: {percentage.rjust(max_perc_len)}% - {self._human_format(amount).rjust(adjust_amount)}\t{chance}\n'
 
-        n = 10
-        out += f'\nTOP {n}:\n'
-        out += f'Zwycięskie cyfry: {self._key_values}'
+        # out += f'\nTOP {self._top_n}:\n'
+        # out += f'Zwycięskie cyfry: {self._key_values}\n'
+
+        # for i, v in enumerate(self._top_numbers):
+        #     position = f'{i}'
+        #     out += f'{position.rjust(len(str(self._top_n+1)))}. '
+        #     out += f'{v}'
 
         return out.strip()
 
@@ -99,6 +124,7 @@ def main():
     if key_file != None:
         board._parse_key_file(key_file)
 
+    top_numbers = []
     input_files = args['input_files']
     for file in input_files:
         f = open(file, 'r')
@@ -109,6 +135,7 @@ def main():
 
             board._update_stat_map(values)
             board._update_match_map(values)
+
 
     stats = Stats(board.get_match_map(), key_values=board.get_key_values())
 
