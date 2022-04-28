@@ -2,9 +2,7 @@
 
 import argparse
 from collections import defaultdict
-
-import pandas as pd
-import matplotlib.pyplot as plt
+from typing import List, DefaultDict
 
 
 class Board():
@@ -13,7 +11,7 @@ class Board():
         self._stat_map = defaultdict(lambda: 0)
         self._match_map = defaultdict(lambda: 0)
 
-    def parse_key_file(self, path: str) -> None:
+    def _parse_key_file(self, path: str) -> None:
         self._key_file = open(path, 'r')
 
         for line in self._key_file.readlines():
@@ -22,57 +20,69 @@ class Board():
 
         self._key_file.close()
 
-    def update_stat_map(self, values: list[int]) -> None:
+    def _update_stat_map(self, values: List[int]) -> None:
         for key in values:
             if key in self._key_values:
                 self._stat_map[key] += 1
 
-    def update_match_map(self, values: list[int]) -> None:
+    def _update_match_map(self, values: List[int]) -> None:
         matched = 0
         for key in values:
             if key in self._key_values:
                 matched += 1
         self._match_map[str(matched)] += 1
 
-    def get_key_values(self) -> list[int]:
+    def get_key_values(self) -> List[int]:
         return self._key_values
 
-    def get_stat_map(self) -> dict[int, int]:
+    def get_stat_map(self) -> DefaultDict[int, int]:
         return self._stat_map
 
-    def get_match_map(self) -> dict[str, int]:
+    def get_match_map(self) -> DefaultDict[str, int]:
         return self._match_map
 
 
 class Stats():
-    def __init__(self, match_map: dict[str, int]) -> None:
+    def __init__(self, match_map: DefaultDict[str, int], key_values: List[int]) -> None:
         self._total_items_count = sum(match_map.values())
         self._stat_board = self._create_stat_board(match_map)
+        self._key_values = key_values
 
         self._chance = ('~1:2.3', '~1:2.4', '~1:7.5', '~1:57', '~1:1032', '~1:54 201', ' 1:13 983 816')
 
-    def _create_stat_board(self, match_map: dict) -> dict:
+    def _create_stat_board(self, match_map: DefaultDict) -> DefaultDict:
 
         def calc_percentage(value: int) -> float:
             total = self._total_items_count
             return 100 * value / total
 
+        precision = [1, 1, 2, 2, 2, 3, 5]
+        i = 0
         map = {}
         for k, v in match_map.items():
-            map[k] = {"value": v, "percentage": calc_percentage(v)}
+            map[k] = {'value': v, 'percentage': calc_percentage(v), 'precision': precision[i]}
+            i += 1
 
         return map
 
     def __str__(self) -> str:
-        out = ''
+        out = 'REZULTAT\t\t\tOCZEKIWANO (lotto)\n'
+        chance = self._chance
+        prize = '10 000'
 
         stats = sorted(self._stat_board.items())
-        chance = self._chance
+        max_perc_len = 3 + stats[-1][1]['precision']
         for k, v in stats:
             chance = self._chance[int(k)]
-            percentage = f"{v['percentage']:2.1f}"
-            out += f"{k}: {percentage.rjust(4)}%"
-            out += f" - {chance}\n"
+            percentage = v['percentage']
+            precision = v['precision']
+            percentage = f'{round(percentage, precision)}'
+            out += f'{k} cyfr: {percentage.rjust(max_perc_len)}% - {prize}zł\t{chance}\n'
+
+        n = 10
+        out += f'\nTOP {n}:\n'
+        out += f'Zwycięskie cyfry: {self._key_values}'
+
         return out.strip()
 
 def main():
@@ -87,7 +97,7 @@ def main():
 
     key_file = args['key_file'][0]
     if key_file != None:
-        board.parse_key_file(key_file)
+        board._parse_key_file(key_file)
 
     input_files = args['input_files']
     for file in input_files:
@@ -97,10 +107,10 @@ def main():
             for v in line.split():
                 values.append(int(v))
 
-            board.update_stat_map(values)
-            board.update_match_map(values)
+            board._update_stat_map(values)
+            board._update_match_map(values)
 
-    stats = Stats(board.get_match_map())
+    stats = Stats(board.get_match_map(), key_values=board.get_key_values())
 
     print(stats)
 
