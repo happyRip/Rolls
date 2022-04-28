@@ -3,7 +3,7 @@
 # https://github.com/koalaman/shellcheck/wiki/SC2251#exceptions
 
 set -o errexit -o pipefail -o noclobber -o nounset
-check_success() { [ $? -eq 0 ] || exit 1; }
+# check_success() { [ $? -eq 0 ] || exit 1; }
 
 ! getopt --test > /dev/null
 if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
@@ -15,8 +15,8 @@ function show_help() {
     echo "Help not yet ready"
 }
 
-OPTIONS=n:m:M:d:h
-LONGOPTS=numbers:,minimum-value:,maximum-value:,delimeter:,help
+OPTIONS=n:m:M:d:uh
+LONGOPTS=numbers:,minimum-value:,maximum-value:,delimeter:,unique:help
 
 ! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
@@ -25,7 +25,7 @@ fi
 
 eval set -- "$PARSED"
 
-n=10 min=1 max=99 d=' '
+n=10 min=1 max=99 d=' ' unique=false
 while true; do
     case "$1" in
         -n|--numbers)
@@ -43,6 +43,10 @@ while true; do
         -d|--delimeter)
             d="$2"
             shift 2
+            ;;
+        -u|--unique)
+            unique=true
+            shift
             ;;
         -h|--help)
             show_help
@@ -64,6 +68,12 @@ if [[ $# -gt 0 ]]; then
     exit 4
 fi
 
+
+if [[ ${unique} && ${n} -gt $(( max - min )) ]]; then
+    echo "$0: Not enough range to support that amount of unique numbers"
+    exit 5
+fi
+
 function getRandom() {
     echo $((min + RANDOM % (max-min+1)))
 }
@@ -76,6 +86,10 @@ function getOutput() {
 }
 
 for (( i = 0; i < n; i++ )); do
-    numbers+=("$(getRandom)")
+    random="$(getRandom)"
+    ${unique} && while [[ "${numbers[*]}" =~ ${random} ]]; do
+        random="$(getRandom)"
+    done
+    numbers+=("${random}")
 done
 getOutput
