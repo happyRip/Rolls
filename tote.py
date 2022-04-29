@@ -51,7 +51,7 @@ class Stats():
         self._stat_board = self._create_stat_board(match_map)
         self._key_values = key_values
 
-        self._chance = ('~1:2.3', '~1:2.4', '~1:7.5', '~1:57', '~1:1032', '~1:54 201', ' 1:13 983 816')
+        self._chance = ('43.6     %', '41.3     %', '13.2     %', ' 1.77    %', ' 0.097   %', ' 0.0018   %', ' 0.0000072%')
 
     def _create_stat_board(self, match_map: DefaultDict) -> DefaultDict:
 
@@ -98,7 +98,7 @@ class Stats():
             percentage = v['percentage']
             precision = v['precision']
             percentage = f'{round(percentage, precision)}'
-            out += f'{k} cyfr: {percentage.rjust(max_perc_len)}% - {self._human_format(amount).rjust(adjust_amount)}\t{chance}\n'
+            out += f'{k} cyfr: {percentage.rjust(max_perc_len)}% - {self._human_format(amount).rjust(adjust_amount)}\t\t{chance}\n'
 
         # out += f'\nTOP {self._top_n}:\n'
         # out += f'Zwycięskie cyfry: {self._key_values}\n'
