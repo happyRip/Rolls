@@ -51,7 +51,7 @@ class Stats():
         self._stat_board = self._create_stat_board(match_map)
         self._key_values = key_values
 
-        self._chance = ('43.6     %', '41.3     %', '13.2     %', ' 1.77    %', ' 0.097   %', ' 0.0018   %', ' 0.0000072%')
+        self._chance = ('43.6     %', '41.3     %', '13.2     %', ' 1.77    %', ' 0.097   %', ' 0.0018  %', ' 0.0000072%')
 
     def _create_stat_board(self, match_map: DefaultDict) -> DefaultDict:
 
@@ -79,6 +79,11 @@ class Stats():
     def __str__(self) -> str:
         stats = sorted(self._stat_board.items())
         out = ''
+
+        out += ' #######################################\n'
+        out += ' ## Loose your money - a lottery game ##\n'
+        out += ' #######################################\n'
+        out += '\n'
 
         out += f'Zwycięskie cyfry: {self._key_values}\n'
 
@@ -108,7 +113,7 @@ class Stats():
         #     out += f'{position.rjust(len(str(self._top_n+1)))}. '
         #     out += f'{v}'
 
-        return out.strip()
+        return out # .strip()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -139,7 +144,7 @@ def main():
 
     stats = Stats(board.get_match_map(), key_values=board.get_key_values())
 
-    print(stats)
+    print('\n', stats, sep='')
 
 
 if __name__ == "__main__":

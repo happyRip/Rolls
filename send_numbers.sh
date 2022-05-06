@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+SOURCE_FOLDER="${1:-/tmp/Hazard}"
+DESTINATION_HOST="${2:-pi@10.100.216.18}"
+DESTINATION_FOLDER="${3:-/tmp}"
+
+scp -r "${SOURCE_FOLDER}" "${DESTINATION_HOST}:${DESTINATION_FOLDER}"
